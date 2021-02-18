@@ -27,7 +27,7 @@ class MyDatabase:
 		values=(databasename, )
 		self.mycursor.execute("CREATE DATABASE %s", values)
 
-	def InsertMsg(self, keyanswer, answer):
+	def insertMsg(self, keyanswer, answer):
 		sqlcode = "INSERT INTO `dicionario`(`key-answer`, `answer`) VALUES (%s, %s)"
 		values = (keyanswer, answer)
 		try:
@@ -36,7 +36,7 @@ class MyDatabase:
 			pass
 		self.mydb.commit()
 
-	def RemoveMsg(self, keyanswer=''):
+	def removeMsg(self, keyanswer=''):
 		if(len(keyanswer)<1):
 			return
 		sqlcode= "DELETE FROM `dicionario` WHERE `key-answer`=%s"
@@ -48,15 +48,16 @@ class MyDatabase:
 		except mysql.connector.IntegrityError:
 			return "Integrity Error"
 
-	def searchMsg(self, answerkey, DBtable):
-		sqlcode= "SELECT * FROM {} WHERE `key-answer` LIKE %s".format(DBtable)
-		values = (answerkey,)
+	def searchMsg(self, answerkey, DBtable, DBcolumn):
+		sqlcode= "SELECT * FROM {} WHERE `{}` LIKE %s".format(DBtable,  DBcolumn)
+		values = (answerkey, )
 		try:
 			self.mycursor.execute(sqlcode, values)
 			myresult = self.mycursor.fetchall()
 			print(myresult)
-		except mysql.connector.errors.OperationalError:
-			return False
+		except (mysql.connector.errors.OperationalError, AttributeError):
+			self.reconnect()
+			return []
 		try:
 			return myresult[0][1]
 		except IndexError:
@@ -68,14 +69,14 @@ class MyDatabase:
 		except AttributeError:
 			return False
 
-	def Reconnect(self):
+	def reconnect(self):
 		self.__init__()
+
+
 '''
-database = MyDatabase()
-#print(database.searchMsg("ola"))
-#database.InsertMsg("oi", "oi")
-print(database.RemoveMsg())
-
-
-database.close()
+database = MyDatabase()            ##INIT DB
+#print(database.searchMsg("ola"))  ##SEARCH AND PRINT
+#database.insertMsg("oi", "oi")    ##INSERT MSG
+print(database.removeMsg())		   ##REMOVE MSG
+database.close()				   ##CLOSE DB
 '''
