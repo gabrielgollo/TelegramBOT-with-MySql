@@ -4,13 +4,14 @@ from DBconnect import MyDatabase
 class Telegram_MSG:
 	def __init__(self, Telegram_Bot):
 		self.database = MyDatabase()
+		print(self.database.connected)
 		self.Telegram_Bot= Telegram_Bot
 		self.connection = self.database.connected
 		self.lastmsg={}
 
 	def received_msg(self, msg):
 
-		if self.connection:
+		if self.database.connected == True:
 			print(msg)
 			mensagem = msg['text']
 			mensagem_Lowercase = str(mensagem).lower()
@@ -21,7 +22,8 @@ class Telegram_MSG:
 			# ChatId = msg['chat']['id']
 			tipoMsg, tipochat, ChatId = telepot.glance(msg)
 
-			if(self.database== None):
+			if(self.database.connected == False):
+				print("No database connected")
 				exit()
 
 
@@ -31,6 +33,12 @@ class Telegram_MSG:
 				print(mensagem_Lowercase[:1])
 				print("here")
 				answerMsg = self.database.searchMsg(mensagem_Lowercase[0:], "commands", "comando")
+				answerMsg=answerMsg.format()
+				print(answerMsg)
+				try:
+					eval(answerMsg)
+				except Exception:
+					print("there is an error!")
 				pass
 
 			else: # IT´S A MSG
@@ -50,5 +58,8 @@ class Telegram_MSG:
 							self.database.imprimir()
 		else:
 			print("FAILED TO CONNECT TO DATABASE")
-			self.database.Reconnect()
+			self.database.reconnect()
+			return 0
+			exit()
+
 		self.database.close()

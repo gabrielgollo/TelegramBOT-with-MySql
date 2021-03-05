@@ -5,10 +5,11 @@ from TelegramBotSets import Telegram_MSG
 
 class Main:
 
-	#DEFAULT SET TELEGRAMKEY AS "0"
+	# DEFAULT SET TOKEN KEY API AS BLANK
 	TelegramKey = ""
 	print(sys.argv)
-	#SEARCH FOR AN ARGUMENT if not SEARCH for botkey.txt
+
+	# SEARCH FOR AN ARGUMENT if not SEARCH for botkey.txt
 	if len(sys.argv) >= 3:
 		for i in range(0, len(sys.argv)):
 			if sys.argv[i] == "-t":
@@ -21,11 +22,9 @@ class Main:
 
 	print("Telegram Bot Key: " + str(TelegramKey))
 
-
-	### Exit if no key were founded
-	if ( len(TelegramKey) < 2):
+	# Exit if no key were found
+	if len(TelegramKey) < 2:
 		exit()
-
 
 	try:
 		Telegram_Bot = telepot.Bot(TelegramKey)
@@ -35,12 +34,12 @@ class Main:
 
 	telegram_bot_msg = Telegram_MSG(Telegram_Bot)
 
-	##STARTS LOOP
+	# STARTS LOOP
 	Telegram_Bot.message_loop(telegram_bot_msg.received_msg)
 
 
 if __name__ == '__main__':
-    pass
+	pass
 
 while True:
 	pass

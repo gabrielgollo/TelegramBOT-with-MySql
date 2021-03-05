@@ -26,6 +26,7 @@ class MyDatabase:
 	def createDatabase(self, databasename):
 		values=(databasename, )
 		self.mycursor.execute("CREATE DATABASE %s", values)
+		self.mydb.commit()
 
 	def insertMsg(self, keyanswer, answer):
 		sqlcode = "INSERT INTO `dicionario`(`key-answer`, `answer`) VALUES (%s, %s)"
