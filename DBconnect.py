@@ -33,6 +33,7 @@ class MyDatabase:
 		values = (keyanswer, answer)
 		try:
 			self.mycursor.execute(sqlcode, values)
+			print("Success into insert MSG: " + values[1])
 		except mysql.connector.errors.IntegrityError:
 			pass
 		self.mydb.commit()
@@ -49,18 +50,18 @@ class MyDatabase:
 		except mysql.connector.IntegrityError:
 			return "Integrity Error"
 
-	def searchMsg(self, answerkey, DBtable, DBcolumn):
-		sqlcode= "SELECT * FROM {} WHERE `{}` LIKE %s".format(DBtable,  DBcolumn)
-		values = (answerkey, )
+	def searchMsg(self, searchkey, DBtable, DBcolumn, default_Column = "*"):
+		sqlcode= "SELECT {} FROM {} WHERE `{}` LIKE %s".format(default_Column, DBtable,  DBcolumn)
+		values = (searchkey, )
 		try:
 			self.mycursor.execute(sqlcode, values)
 			myresult = self.mycursor.fetchall()
-			print(myresult)
+			#print(myresult)
 		except (mysql.connector.errors.OperationalError, AttributeError):
 			self.reconnect()
 			return []
 		try:
-			return myresult[0][1]
+			return myresult
 		except IndexError:
 			return []
 

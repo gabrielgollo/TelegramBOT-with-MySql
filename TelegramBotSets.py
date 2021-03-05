@@ -1,5 +1,6 @@
 import telepot
 from DBconnect import MyDatabase
+import re
 
 class Telegram_MSG:
 	def __init__(self, Telegram_Bot):
@@ -9,10 +10,20 @@ class Telegram_MSG:
 		self.connection = self.database.connected
 		self.lastmsg={}
 
+	def list_to_str_msg(self, x):
+		try:
+			return x[0][0]
+		except Exception as e:
+			return ""
+
+	def search_user(self, usernameID):
+		x = self.database.searchMsg(usernameID, 'admins', 'ID', 'username')
+		return self.list_to_str_msg(x)
+
 	def received_msg(self, msg):
 
 		if self.database.connected == True:
-			print(msg)
+			#print(msg)
 			mensagem = msg['text']
 			mensagem_Lowercase = str(mensagem).lower()
 
@@ -27,26 +38,57 @@ class Telegram_MSG:
 				exit()
 
 
-
+			print(self.search_user(msg['chat']['id']))
 			### IF IT'S A COMMAND
-			if (mensagem_Lowercase[:1] == "/"):
+			if ( mensagem_Lowercase[:1] == "/" and msg['chat']['username'] == self.search_user(msg['chat']['id']) ):
 				print(mensagem_Lowercase[:1])
-				print("here")
-				answerMsg = self.database.searchMsg(mensagem_Lowercase[0:], "commands", "comando")
-				answerMsg=answerMsg.format()
-				print(answerMsg)
-				try:
-					eval(answerMsg)
-				except Exception:
-					print("there is an error!")
-				pass
+				### Simplify the text msg
+				commandMsg = re.sub("/", "", mensagem_Lowercase)
+				commandMsg = commandMsg.split(" ")
 
-			else: # IT´S A MSG
+				commandkeyDB = commandMsg[0]  # /COMMAND
+
+				answerMsg = self.database.searchMsg(commandkeyDB, "commands", "comando", "arguments")
+				print("answermsg founded", answerMsg[0][0])
+				if len(commandMsg) == int(answerMsg[0][0])+1:
+					try:
+
+						keyA = commandMsg[1]
+						keyB = commandMsg[2]
+						answerMsg = self.database.searchMsg(commandkeyDB, "commands", "comando", "resultado")
+						answerMsg = self.list_to_str_msg(answerMsg)
+						answerMsg= answerMsg.format(commandMsg[1], commandMsg[2])
+
+					except Exception as e:
+						print(e)
+						return
+
+					##TENTA EXECUTAR COMANDO DO MYSQL
+					print(answerMsg)
+					try:
+						eval(answerMsg)
+						pass
+					except Exception as e:
+						print("there is an error! > " + e)
+					pass
+
+				else:
+					return
+
+
+			### IT´S A MSG
+			else:
 				answerMsg = self.database.searchMsg(mensagem_Lowercase, "dicionario", "key-answer")
+				try:
+					answerMsg = answerMsg[0][1]
+				except Exception as e:
+					answerMsg = ""
+
 				if len(answerMsg)>1:
 					self.Telegram_Bot.sendMessage(ChatId, answerMsg)
 					print("Resposta encontrada Enviada para o chat:")
 					print(answerMsg)
+
 				else:
 					if msg['chat']['username'] == 'GabrielGollo':
 						answerMsg = "Resposta nao encontrada deseja adicionar uma?"
@@ -56,9 +98,11 @@ class Telegram_MSG:
 						self.Telegram_Bot.getUpdates()
 						if msg['text'].lower() == 'sim':
 							self.database.imprimir()
+
 		else:
 			print("FAILED TO CONNECT TO DATABASE")
 			self.database.reconnect()
+			self.received_msg(self, msg)
 			return 0
 			exit()
 
