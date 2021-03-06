@@ -3,9 +3,17 @@ from DBconnect import MyDatabase
 import re
 
 class Telegram_MSG:
-	def __init__(self, Telegram_Bot):
-		self.database = MyDatabase()
+	def __init__(self, Telegram_Bot, MySql_Configs):
+
+		# Mysql Configurations
+		fhost = MySql_Configs['fhost']
+		fuser = MySql_Configs['fuser']
+		fpassword = MySql_Configs['fpassword']
+		fdatabase = MySql_Configs['fdatabase']
+		self.database = MyDatabase(fhost, fuser, fpassword, fdatabase)
 		print(self.database.connected)
+
+		# TelegramBot API Configurations
 		self.Telegram_Bot= Telegram_Bot
 		self.connection = self.database.connected
 		self.lastmsg={}
@@ -22,8 +30,9 @@ class Telegram_MSG:
 
 	def received_msg(self, msg):
 
-		if self.database.connected == True:
-			#print(msg)
+
+		if self.database.checkConnection() and :
+			# print(msg)
 			mensagem = msg['text']
 			mensagem_Lowercase = str(mensagem).lower()
 
@@ -39,10 +48,10 @@ class Telegram_MSG:
 
 
 			print(self.search_user(msg['chat']['id']))
-			### IF IT'S A COMMAND
+			# IF IT'S A COMMAND
 			if ( mensagem_Lowercase[:1] == "/" and msg['chat']['username'] == self.search_user(msg['chat']['id']) ):
 				print(mensagem_Lowercase[:1])
-				### Simplify the text msg
+				# Simplify the text msg
 				commandMsg = re.sub("/", "", mensagem_Lowercase)
 				commandMsg = commandMsg.split(" ")
 
@@ -84,7 +93,7 @@ class Telegram_MSG:
 				except Exception as e:
 					answerMsg = ""
 
-				if len(answerMsg)>1:
+				if len(answerMsg)>0:
 					self.Telegram_Bot.sendMessage(ChatId, answerMsg)
 					print("Resposta encontrada Enviada para o chat:")
 					print(answerMsg)
@@ -92,7 +101,8 @@ class Telegram_MSG:
 				else:
 					if msg['chat']['username'] == 'GabrielGollo':
 						answerMsg = "Resposta nao encontrada deseja adicionar uma?"
-						print(answerMsg+"\n")
+						self.lastmsg[msg['chat']['id']] = "Resposta nao encontrada deseja adicionar uma?"
+						print(self.lastmsg[msg['chat']['id']]+"\n")
 						self.Telegram_Bot.sendMessage(ChatId, answerMsg)
 
 						self.Telegram_Bot.getUpdates()
@@ -102,8 +112,9 @@ class Telegram_MSG:
 		else:
 			print("FAILED TO CONNECT TO DATABASE")
 			self.database.reconnect()
-			self.received_msg(self, msg)
+			# ChatId = msg['chat']['id']
+			tipoMsg, tipochat, ChatId = telepot.glance(msg)
+			self.Telegram_Bot.sendMessage(ChatId, "There was a DB Connection error, please repeat.")
+			#self.received_msg(msg)
 			return 0
 			exit()
-
-		self.database.close()

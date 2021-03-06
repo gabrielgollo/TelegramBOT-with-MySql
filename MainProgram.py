@@ -3,6 +3,8 @@ import sys
 from DBconnect import MyDatabase
 from TelegramBotSets import Telegram_MSG
 
+
+
 class Main:
 
 	# DEFAULT SET TOKEN KEY API AS BLANK
@@ -32,9 +34,18 @@ class Main:
 		print("There is an error with TOKEN API!")
 		exit()
 
-	telegram_bot_msg = Telegram_MSG(Telegram_Bot)
+	''' Configure o telegram_bot_msg with your MySql settings
+		fhost="localhost", 
+		fuser="root", 
+		fpassword="admin", 
+		fdatabase="telegram_bot"
+	'''
+	MySql_Configs = {"fhost": "localhost", "fuser": "root", "fpassword": "", "fdatabase": "telegram_bot"}
+	telegram_bot_msg = Telegram_MSG(Telegram_Bot, MySql_Configs)
+
 
 	# STARTS LOOP
+	#Telegram_Bot.setChatPhoto("*", "./whitelantern.jpg")
 	Telegram_Bot.message_loop(telegram_bot_msg.received_msg)
 
 

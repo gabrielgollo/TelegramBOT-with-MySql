@@ -2,7 +2,6 @@ import mysql.connector
 
 class MyDatabase:
 	def __init__(self, fhost="localhost", fuser="root", fpassword="admin", fdatabase="telegram_bot"):
-		self.connected=False
 		try:
 			self.mydb = mysql.connector.connect(
 			host=fhost,
@@ -11,22 +10,21 @@ class MyDatabase:
 			database=fdatabase)
 			self.mycursor = self.mydb.cursor()
 			self.connected=True
+
 		except mysql.connector.InterfaceError:
 			self.connected=False
 
 	def imprimir(self):
 		print(self.mydb)
 
-	def showDatabases(self):
-		self.mycursor.execute("SHOW DATABASES")
-
-		myresult = self.mycursor.fetchall()
-		return myresult
 
 	def createDatabase(self, databasename):
 		values=(databasename, )
 		self.mycursor.execute("CREATE DATABASE %s", values)
 		self.mydb.commit()
+
+	def checkConnection(self):
+		return self.mydb.is_connected()
 
 	def insertMsg(self, keyanswer, answer):
 		sqlcode = "INSERT INTO `dicionario`(`key-answer`, `answer`) VALUES (%s, %s)"
@@ -64,6 +62,13 @@ class MyDatabase:
 			return myresult
 		except IndexError:
 			return []
+
+	def showDatabases(self):
+		self.mycursor.execute("SHOW DATABASES")
+
+		myresult = self.mycursor.fetchall()
+		return myresult
+
 
 	def close(self):
 		try:
