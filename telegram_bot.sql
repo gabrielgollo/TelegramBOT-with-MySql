@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 17-Fev-2021 às 19:58
+-- Tempo de geração: 07-Mar-2021 às 21:08
 -- Versão do servidor: 10.4.11-MariaDB
 -- versão do PHP: 7.4.1
 
@@ -25,20 +25,40 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Estrutura da tabela `admins`
+--
+
+CREATE TABLE `admins` (
+  `ID` int(255) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `present` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Extraindo dados da tabela `admins`
+--
+
+INSERT INTO `admins` (`ID`, `username`, `present`) VALUES
+(222618635, 'GabrielGollo', 1);
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura da tabela `commands`
 --
 
 CREATE TABLE `commands` (
   `comando` varchar(255) NOT NULL,
-  `resultado` varchar(255) NOT NULL
+  `resultado` varchar(255) NOT NULL,
+  `arguments` int(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Extraindo dados da tabela `commands`
 --
 
-INSERT INTO `commands` (`comando`, `resultado`) VALUES
-('add', 'a');
+INSERT INTO `commands` (`comando`, `resultado`, `arguments`) VALUES
+('add', 'self.database.insertMsg(\'{}\', \'{}\')', 2);
 
 -- --------------------------------------------------------
 
@@ -61,6 +81,12 @@ INSERT INTO `dicionario` (`key-answer`, `answer`) VALUES
 --
 -- Índices para tabelas despejadas
 --
+
+--
+-- Índices para tabela `admins`
+--
+ALTER TABLE `admins`
+  ADD PRIMARY KEY (`ID`,`username`);
 
 --
 -- Índices para tabela `commands`
