@@ -1,52 +1,54 @@
 import telepot
 import sys
-from DBconnect import MyDatabase
 from TelegramBotSets import Telegram_MSG
 
 
-
 class Main:
+	def __init__(self):
+		self.TelegramKey = ""  # Initialize the TokenAPI as blank
+		self.treatysargv()  # TokenAPI treatment
 
-	# DEFAULT SET TOKEN KEY API AS BLANK
-	TelegramKey = ""
-	print(sys.argv)
+		try:
+			self.Telegram_Bot = telepot.Bot(self.TelegramKey)  # Initialize the Bot with TokenAPI
+		except telepot.exception.TelegramError:
+			print("There is an error with TOKEN API!")
+			exit()
 
-	# SEARCH FOR AN ARGUMENT if not SEARCH for botkey.txt
-	if len(sys.argv) >= 3:
-		for i in range(0, len(sys.argv)):
-			if sys.argv[i] == "-t":
-				TelegramKey = sys.argv[i + 1]
-				break
-	else:
-		TelegramFileKey = open("botkey.txt", "rt")
-		TelegramKey = TelegramFileKey.read()
-		TelegramFileKey.close()
+		# MySql Configs ##########################
+		''' Configure o telegram_bot_msg with your MySql settings
+			fhost="localhost", 
+			fuser="root", 
+			fpassword="admin", 
+			fdatabase="telegram_bot"
+		'''
+		self.MySql_Configs = {"fhost": "localhost", "fuser": "root", "fpassword": "", "fdatabase": "telegram_bot"}
+		self.telegram_bot_msg = Telegram_MSG(self.Telegram_Bot, self.MySql_Configs)
 
-	print("Telegram Bot Key: " + str(TelegramKey))
+		# STARTS LOOP
+		self.Telegram_Bot.message_loop(self.telegram_bot_msg.received_msg)
+		# ------------------------------------------------------------
 
-	# Exit if no key were found
-	if len(TelegramKey) < 2:
-		exit()
+	def treatysargv(self):
+		# DEFAULT SET TOKEN KEY API AS BLANK
 
-	try:
-		Telegram_Bot = telepot.Bot(TelegramKey)
-	except telepot.exception.TelegramError:
-		print("There is an error with TOKEN API!")
-		exit()
+		print(sys.argv)
 
-	''' Configure o telegram_bot_msg with your MySql settings
-		fhost="localhost", 
-		fuser="root", 
-		fpassword="admin", 
-		fdatabase="telegram_bot"
-	'''
-	MySql_Configs = {"fhost": "localhost", "fuser": "root", "fpassword": "", "fdatabase": "telegram_bot"}
-	telegram_bot_msg = Telegram_MSG(Telegram_Bot, MySql_Configs)
+		# SEARCH FOR AN ARGUMENT if not SEARCH for botkey.txt
+		if len(sys.argv) >= 3:
+			for i in range(0, len(sys.argv)):
+				if sys.argv[i] == "-t":
+					self.TelegramKey = sys.argv[i + 1]
+					break
+		else:
+			telegramfilekey = open("botkey.txt", "rt")
+			self.TelegramKey = telegramfilekey.read()
+			telegramfilekey.close()
 
+		print("Telegram Bot Key: " + str(self.TelegramKey))
 
-	# STARTS LOOP
-	#Telegram_Bot.setChatPhoto("*", "./whitelantern.jpg")
-	Telegram_Bot.message_loop(telegram_bot_msg.received_msg)
+		# Exit if no key were found
+		if len(self.TelegramKey) < 2:
+			exit()
 
 
 if __name__ == '__main__':

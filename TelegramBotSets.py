@@ -1,6 +1,7 @@
 import telepot
 from DBconnect import MyDatabase
 import re
+from Covid19API import Covid19Infos
 
 class Telegram_MSG:
 	def __init__(self, Telegram_Bot, MySql_Configs):
@@ -18,6 +19,9 @@ class Telegram_MSG:
 		self.connection = self.database.connected
 		self.lastmsg={}
 
+		#Covid19API
+		self.statusPerCountries = Covid19Infos()
+
 	def list_to_str_msg(self, x):
 		try:
 			return x[0][0]
@@ -28,10 +32,13 @@ class Telegram_MSG:
 		x = self.database.searchMsg(usernameID, 'admins', 'ID', 'username')
 		return self.list_to_str_msg(x)
 
+	def reloadCovid19Status(self):
+		self.statusPerCountries = Covid19Infos()
+
 	def received_msg(self, msg):
 
 
-		if self.database.checkConnection() and :
+		if self.database.checkConnection():
 			# print(msg)
 			mensagem = msg['text']
 			mensagem_Lowercase = str(mensagem).lower()
@@ -48,6 +55,7 @@ class Telegram_MSG:
 
 
 			print(self.search_user(msg['chat']['id']))
+
 			# IF IT'S A COMMAND
 			if ( mensagem_Lowercase[:1] == "/" and msg['chat']['username'] == self.search_user(msg['chat']['id']) ):
 				print(mensagem_Lowercase[:1])
@@ -78,7 +86,7 @@ class Telegram_MSG:
 						eval(answerMsg)
 						pass
 					except Exception as e:
-						print("there is an error! > " + e)
+						print("there is an error! > " + str(e))
 					pass
 
 				else:
@@ -116,5 +124,4 @@ class Telegram_MSG:
 			tipoMsg, tipochat, ChatId = telepot.glance(msg)
 			self.Telegram_Bot.sendMessage(ChatId, "There was a DB Connection error, please repeat.")
 			#self.received_msg(msg)
-			return 0
 			exit()
