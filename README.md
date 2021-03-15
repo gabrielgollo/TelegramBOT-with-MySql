@@ -8,6 +8,8 @@
 This is my new project only to test how a TelegramBot should work with MySql Storage
 and some APIs.
 
+Uses an API Rest to get data of COVID-19
+
 ---
 
 ## Features-to-be 
